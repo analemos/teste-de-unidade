@@ -23,6 +23,8 @@ public class Leilao {
 		this.lances = new ArrayList<Lance>();
 	}
 	
+	public static String teste() { return "teste"; }
+
 	public void propoe(Lance lance) {
 		if(lances.isEmpty() || podeDarLance(lance.getUsuario())) {
 			lances.add(lance);

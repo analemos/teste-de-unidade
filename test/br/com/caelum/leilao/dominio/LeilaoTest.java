@@ -1,10 +1,17 @@
 package br.com.caelum.leilao.dominio;
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 
 public class LeilaoTest {
+	
+	@Test
+	public void teste() {
+		Leilao leilao = new Leilao("TV");
+		Assert.assertEquals("teste", leilao.teste());
+	}
 
 	@Test
 	public void deveReceberUmLance() {
