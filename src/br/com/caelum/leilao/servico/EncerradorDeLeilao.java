@@ -9,42 +9,43 @@ import br.com.caelum.leilao.infra.dao.LeilaoDao;
 public class EncerradorDeLeilao {
 
 	private int total = 0;
+    private final LeilaoDao dao;
+    private final EnviadorDeEmail carteiro;
 
-	private LeilaoDao dao;
-	
-	public EncerradorDeLeilao(LeilaoDao dao) {
-		this.dao = dao;
-	}
-	
-	public void encerra() {
-		
-		List<Leilao> todosLeiloesCorrentes = dao.correntes();
+    public EncerradorDeLeilao(LeilaoDao dao, EnviadorDeEmail carteiro) {
+        this.dao = dao;
+        this.carteiro = carteiro;
+    }
 
-		for (Leilao leilao : todosLeiloesCorrentes) {
-			if (comecouSemanaPassada(leilao)) {
-				leilao.encerra();
-				total++;
-				dao.atualiza(leilao);
-			}
-		}
-	}
+    public void encerra() {
+        List<Leilao> todosLeiloesCorrentes = dao.correntes();
 
-	private boolean comecouSemanaPassada(Leilao leilao) {
-		return diasEntre(leilao.getData(), Calendar.getInstance()) >= 7;
-	}
+        for (Leilao leilao : todosLeiloesCorrentes) {
+            if (comecouSemanaPassada(leilao)) {
+                System.out.println("oi");
+                leilao.encerra();
+                total++;
+                dao.atualiza(leilao);
+                carteiro.envia(leilao);
+            }
+        }
+    }
 
-	private int diasEntre(Calendar inicio, Calendar fim) {
-		Calendar data = (Calendar) inicio.clone();
-		int diasNoIntervalo = 0;
-		while (data.before(fim)) {
-			data.add(Calendar.DAY_OF_MONTH, 1);
-			diasNoIntervalo++;
-		}
+    private boolean comecouSemanaPassada(Leilao leilao) {
+        return diasEntre(leilao.getData(), Calendar.getInstance()) >= 7;
+    }
 
-		return diasNoIntervalo;
-	}
+    private int diasEntre(Calendar inicio, Calendar fim) {
+        Calendar data = (Calendar) inicio.clone();
+        int diasNoIntervalo = 0;
+        while (data.before(fim)) {
+            data.add(Calendar.DAY_OF_MONTH, 1);
+            diasNoIntervalo++;
+        }
+        return diasNoIntervalo;
+    }
 
-	public int getTotalEncerrados() {
-		return total;
-	}
+    public int getTotalEncerrados() {
+        return total;
+    }
 }

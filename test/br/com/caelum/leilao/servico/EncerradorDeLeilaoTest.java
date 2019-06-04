@@ -26,10 +26,19 @@ public class EncerradorDeLeilaoTest {
 	
 	public Calendar dataAntiga;
 	
+	public LeilaoDao mockDao;
+	
+	public EnviadorDeEmail mockCarteiro;
+	
+	public EncerradorDeLeilao encerrador;
+	
 	@Before
 	public void setup() {
 		dataAntiga = Calendar.getInstance();
 		dataAntiga.set(1991,01,20);
+		mockDao = Mockito.mock(LeilaoDao.class);
+		mockCarteiro = mock(EnviadorDeEmail.class);
+		encerrador = new EncerradorDeLeilao(mockDao, mockCarteiro);
 	}
 	@Test
 	public void deve_encerrar_leiloes_comecados_semana_passada() {
@@ -39,12 +48,9 @@ public class EncerradorDeLeilaoTest {
 		
 		List<Leilao> leiloesAntigos = Arrays.asList(leilao1, leilao2);
 		
-		LeilaoDao mockDao = Mockito.mock(LeilaoDao.class);
 		
 		when(mockDao.correntes()).thenReturn(leiloesAntigos);
-		
-		EncerradorDeLeilao encerrador = new EncerradorDeLeilao(mockDao);
-		
+				
 		encerrador.encerra();
 		
 		assertEquals(2, encerrador.getTotalEncerrados());
@@ -56,12 +62,8 @@ public class EncerradorDeLeilaoTest {
 	public void deve_atualizar_leiloes_encerrados_apenas_uma_vez() {
 		Leilao leilao1 = new CriadorDeLeilao().para("TV").naData(dataAntiga).constroi();
 		
-		LeilaoDao mockDao = mock(LeilaoDao.class);
-		
 		when(mockDao.correntes()).thenReturn(Arrays.asList(leilao1));
-		
-		EncerradorDeLeilao encerrador = new EncerradorDeLeilao(mockDao);
-		
+				
 		encerrador.encerra();
 		
 		verify(mockDao, times(1)).atualiza(leilao1);
@@ -81,7 +83,6 @@ public class EncerradorDeLeilaoTest {
 	        LeilaoDao daoFalso = mock(LeilaoDao.class);
 	        when(daoFalso.correntes()).thenReturn(Arrays.asList(leilao1, leilao2));
 
-	        EncerradorDeLeilao encerrador = new EncerradorDeLeilao(daoFalso);
 	        encerrador.encerra();
 
 	        assertEquals(0, encerrador.getTotalEncerrados());
